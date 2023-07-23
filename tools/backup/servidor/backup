@@ -1,0 +1,10 @@
+#!/bin/bash -ex
+etherwake-nas
+backup_path="/mnt/nas/backup"
+if [ ! "$(ls "$backup_path")" ]; then
+     sudo mount -t cifs -o vers=1.0,username=angel_be,uid=angel_be,gid=angel_be //192.168.0.50/backup "$backup_path"
+fi
+backup_log_file_path="/tmp/backup.log"
+backup_err_file_path="$backup_log_file_path.err"
+rm -rf "$backup_log_file_path" "$backup_err_file_path"
+nohup rsync-to-nas "$backup_log_file_path" "$backup_err_file_path" 1> "$backup_log_file_path" 2> "$backup_err_file_path" &

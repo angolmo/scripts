@@ -1,0 +1,4 @@
+#!/bin/bash -ex
+sudo etherwake -i enp2s0 28:28:5d:1f:03:fe
+ping -q -c 3 nas
+nc -w 10 -z -v nas 80
