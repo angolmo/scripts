@@ -1,0 +1,40 @@
+#!/bin/bash -e
+
+curr_path=`pwd`
+my_mixes_path="$curr_path/my_mixes"
+
+## First find occurrences of the files provided, to avoid repeated songs
+#for f in "$@"; do
+#    if [ ! -f "$f" ] ; then
+#        echo "ERROR: Unexistent file "$f""
+#	exit 1
+#    fi
+#    matches=`find "$my_mixes_path" -name "*$(basename "$f")*"`
+#    if [ ! -z "$matches" ] ; then
+#        echo "Song $(basename "$f") repeated in mix(es): "
+#	echo "$matches"
+#	echo ""
+#	while true ; do
+#            read -p "Continue anyway? [y/n] " yn
+#            case $yn in
+#                [Yy]* ) break ;;
+#		[Nn]* ) exit ;;
+#		*) echo "Invalid answer"
+#            esac
+#	done
+#    fi
+#done
+
+# Directory for the existing mix comes as a parameter
+mix_path="$1"
+
+# Now speedup the files and move them to the desired location
+for f in $mix_path/*.mp3 ; do
+    filename=$(basename "$f")
+    echo "Processing new song $filename"
+    temporary_name="$mix_path/$filename.2"
+    ./speedup_one.sh "$f" "$temporary_name"
+    mv "$temporary_name" "$f"
+done
+touch "$mix_path/speeded_up_five"
+echo "$mix_path speeded up successfully"
