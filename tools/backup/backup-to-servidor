@@ -1,33 +1,12 @@
 #!/bin/bash
 
-# If destination path is not in mounts, suggest its mount and exit
-server_mnt_path="/mnt/pc-servidor"
-if [ -z "$(mount | grep $server_mnt_path)" ] ; then
-    >&2 echo "$server_mnt_path not mounted"
-    >&2 echo "Consider: sudo mount pc-servidor:/mnt/sda5/home/angel_be "$server_mnt_path""
-    exit 1
-fi
-
-# Source and destination are intentionally hardocded
-source_path="/home/angel_be/Documentos"
-destination_path="$server_mnt_path/Documents"
-
-# Logfile path
-date_suffix=`date +%Y%m%d`
-logfile_path="/tmp/backup_$date_suffix.log"
-
 # Prepare rsync options
 rsync_options=(
-    -av --delete --itemize-changes --modify-window=5 --stats
-    --include "Documentos*/***"
-    --include "Dropbox/***"
-    --exclude "*"
+    -av --delete --itemize-changes --stats
+    --include \"Documentos*/***\"
+    --include \"Dropbox/***\"
+    --exclude \"*\"
     "$@" # This is to allow other extra options to rsync such as --dry-run
 )
 
-# Go rsync!!
-echo "$ rsync ${rsync_options[@]} $source_path/ $destination_path > $logfile_path 2>&1" > $logfile_path
-rsync "${rsync_options[@]}" "$source_path/" "$destination_path" >> "$logfile_path" 2>&1
-
-# Push logfile to backup log folder
-cp "$logfile_path" "$server_mnt_path/backup_logs"
+./backup-script "/home/angel_be/Documentos" "/mnt/pc-servidor/Documents" "${rsync_options[*]}"

@@ -1,0 +1,33 @@
+#!/bin/bash
+
+source_path="$1" && shift
+destination_path="$1" && shift
+rsync_options=($@)
+
+# Test if the destination path is mounted. If not, suggest its mount and exit
+if [[ ! -d "$destination_path" ]] ; then
+    >&2 echo "$destination_path not mounted"
+    if [[ "$destination_path" =~ "pc-servidor" ]] ; then
+        >&2 echo "Consider: sudo mount pc-servidor:/mnt/sda5/home/angel_be "/mnt/pc-servidor""
+        >&2 echo "Aborting ..."
+    elif [[ "$destination_path" =~ "nas" ]] ; then
+        >&2 echo "Consider: sudo mount -t cifs -o vers=1.0,username=angel_be,uid=angel_be,gid=angel_be //192.168.0.50/backup /mnt/nas/backup"
+        >&2 echo "Aborting ..."
+    else
+        >&2 echo "Destination path $destination_path not found, and not in the expected mounts !!!"
+        >&2 echo "Aborting ..."
+    fi
+    exit 1
+fi
+
+# Logfile path
+date_suffix=`date +%Y%m%d`
+logfile_path="/tmp/backup_$date_suffix.log"
+
+# Call rsync!!
+echo "$ rsync ${rsync_options[@]} $source_path/ $destination_path > $logfile_path 2>&1" > $logfile_path
+rsync "${rsync_options[@]}" "$source_path/" "$destination_path" >> "$logfile_path" 2>&1
+
+# Push logfile to backup log folder
+mkdir -p "$destination_path/backup_logs"
+cp "$logfile_path" "$destination_path/backup_logs"
