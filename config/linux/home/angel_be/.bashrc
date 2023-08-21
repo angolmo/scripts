@@ -116,7 +116,8 @@ if ! shopt -oq posix; then
   fi
 fi
 
-export PATH="$PATH:/home/angel_be/bin"
+export CMAKE="/opt/cmake/3.25.1/bin"
+export PATH="$PATH:~/bin:$CMAKE"
 alias disk-space="df -h | head -n 1 && df -h | grep dev\/sd"
 alias updater="sudo apt update && sudo apt dist-upgrade -y && sudo apt autoremove -y"
 LS_COLORS+=':ow=01;33'
