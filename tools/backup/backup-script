@@ -2,7 +2,6 @@
 
 source_path="$1" && shift
 destination_path="$1" && shift
-rsync_options=($@)
 
 # Test if the destination path is mounted. If not, suggest its mount and exit
 if [[ ! -d "$destination_path" ]] ; then
@@ -23,6 +22,22 @@ fi
 # Logfile path
 date_suffix=`date +%Y%m%d`
 logfile_path="/tmp/backup_$date_suffix.log"
+
+# Assign options to rsync depending on the mount
+# (ugly hack because I cannot make include/exclude filters work passing them as a parameter of the script in a bash array)
+if [[ "$destination_path" =~ "pc-servidor" ]] ; then
+    rsync_options=(
+        -av --delete --itemize-changes --stats
+        --include "Documentos*/***"
+        --include "Dropbox/***"
+        --exclude "*"
+        "$@" # This is to allow other extra options to rsync such as --dry-run
+    )
+
+else # if [[ "$destination_path" =~ "nas" ]] ; then
+    >&2 echo "Destination path $destination_path not found, and not in the expected mounts !!!"
+    >&2 echo "Aborting ..."
+fi
 
 # Call rsync!!
 echo "$ rsync ${rsync_options[@]} $source_path/ $destination_path > $logfile_path 2>&1" > $logfile_path

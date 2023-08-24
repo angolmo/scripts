@@ -1,12 +1,3 @@
 #!/bin/bash
 
-# Prepare rsync options
-rsync_options=(
-    -av --delete --itemize-changes --stats
-    --include \"Documentos*/***\"
-    --include \"Dropbox/***\"
-    --exclude \"*\"
-    "$@" # This is to allow other extra options to rsync such as --dry-run
-)
-
-./backup-script "/home/angel_be/Documentos" "/mnt/pc-servidor/Documents" "${rsync_options[*]}"
+./backup-script "/home/angel_be/Documentos" "/mnt/pc-servidor/Documents" "$@"
